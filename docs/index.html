@@ -103,133 +103,163 @@
   </div>
 
   <script>
-    // --------- Utilities: gaussian sampling ---------
-    function randn() {
-      // Box–Muller transform
-      let u = 0, v = 0;
-      while (u === 0) u = Math.random();
-      while (v === 0) v = Math.random();
-      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    <script>
+  // ---------- helpers ----------
+  function randBetween(a, b) { return a + Math.random() * (b - a); }
+
+  // Point-in-polygon (ray casting)
+  function pointInPoly(x, y, poly) {
+    let inside = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const xi = poly[i][0], yi = poly[i][1];
+      const xj = poly[j][0], yj = poly[j][1];
+      const intersect =
+        ((yi > y) !== (yj > y)) &&
+        (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-12) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+
+  // A simple Taiwan-ish outline (normalized coordinates).
+  // This is an approximation for a stylized silhouette (not cartographic-accurate).
+  // Feel free to tweak points to taste.
+  const TAIWAN_OUTLINE = [
+    [ 0.10,  1.00],
+    [ 0.22,  0.95],
+    [ 0.33,  0.84],
+    [ 0.40,  0.72],
+    [ 0.44,  0.58],
+    [ 0.45,  0.44],
+    [ 0.43,  0.30],
+    [ 0.37,  0.16],
+    [ 0.30,  0.04],
+    [ 0.18, -0.10],
+    [ 0.05, -0.25],
+    [-0.02, -0.42],
+    [-0.08, -0.62],
+    [-0.12, -0.80],
+    [-0.10, -0.96],
+    [-0.02, -1.05],
+    [ 0.08, -1.06],
+    [ 0.18, -0.98],
+    [ 0.26, -0.86],
+    [ 0.31, -0.72],
+    [ 0.34, -0.58],
+    [ 0.35, -0.44],
+    [ 0.34, -0.30],
+    [ 0.31, -0.14],
+    [ 0.26,  0.02],
+    [ 0.20,  0.20],
+    [ 0.12,  0.44],
+    [ 0.08,  0.66],
+    [ 0.08,  0.84]
+  ];
+
+  function boundsOf(poly) {
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const [x, y] of poly) {
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+    return { minX, maxX, minY, maxY };
+  }
+
+  function sampleInTaiwan(poly, scaleX, scaleY, zDepth) {
+    const { minX, maxX, minY, maxY } = boundsOf(poly);
+
+    // rejection sample in bounding box
+    while (true) {
+      const x = randBetween(minX, maxX);
+      const y = randBetween(minY, maxY);
+      if (pointInPoly(x, y, poly)) {
+        return {
+          x: x * scaleX,
+          y: y * scaleY,
+          z: (Math.random() - 0.5) * zDepth
+        };
+      }
+    }
+  }
+
+  // ---------- Taiwan-shaped graph generator ----------
+  function generateTaiwanGraph({
+    nNodes = 180,         // fewer/more dots
+    linkRadius = 16,      // how close dots must be to connect
+    maxLinksPerNode = 3,  // cap lines per node
+    scaleX = 110,         // overall size (width)
+    scaleY = 140,         // overall size (height)
+    zDepth = 14           // thickness for 3D feel
+  } = {}) {
+    const nodes = [];
+    const links = [];
+
+    for (let i = 0; i < nNodes; i++) {
+      const p = sampleInTaiwan(TAIWAN_OUTLINE, scaleX, scaleY, zDepth);
+      nodes.push({ id: `T${i}`, group: "TW", ...p });
     }
 
-    function sampleEllipsoid(cx, cy, cz, rx, ry, rz, tightness = 1.2) {
-      // Sample inside unit sphere w/ mild center bias, then scale to ellipsoid
-      let x, y, z;
-      while (true) {
-        x = randn() / tightness;
-        y = randn() / tightness;
-        z = randn() / tightness;
-        if (x * x + y * y + z * z <= 1.0) break;
-      }
-      return { x: cx + x * rx, y: cy + y * ry, z: cz + z * rz };
+    const r2 = linkRadius * linkRadius;
+    function dist2(a, b) {
+      const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
+      return dx*dx + dy*dy + dz*dz;
     }
 
-    // --------- Brain-ish graph generator ---------
-    function generateBrainGraph({
-      nLeft = 80,
-      nRight = 80,
-      nBridge = 30,
-      linkRadius = 18,
-      maxLinksPerNode = 4
-    } = {}) {
-      const nodes = [];
-      const links = [];
-
-      // Shape controls (tweak to taste)
-      const rx = 85, ry = 60, rz = 70; // hemisphere radii
-      const sep = 55;                  // hemisphere separation on X
-
-      // Left hemisphere
-      for (let i = 0; i < nLeft; i++) {
-        const p = sampleEllipsoid(-sep, 0, 0, rx, ry, rz, 1.2);
-        nodes.push({ id: `L${i}`, group: "L", ...p });
-      }
-
-      // Right hemisphere
-      for (let i = 0; i < nRight; i++) {
-        const p = sampleEllipsoid(sep, 0, 0, rx, ry, rz, 1.2);
-        nodes.push({ id: `R${i}`, group: "R", ...p });
-      }
-
-      // Bridge (corpus-callosum-ish)
-      for (let i = 0; i < nBridge; i++) {
-        const p = sampleEllipsoid(0, -6, 0, 38, 18, 22, 1.4);
-        nodes.push({ id: `B${i}`, group: "B", ...p });
-      }
-
-      const r2 = linkRadius * linkRadius;
-
-      function dist2(a, b) {
-        const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
-        return dx * dx + dy * dy + dz * dz;
-      }
-
-      // Connect to nearby neighbors (kept sparse for readability)
-      for (let i = 0; i < nodes.length; i++) {
-        const a = nodes[i];
-        let added = 0;
-        for (let j = i + 1; j < nodes.length; j++) {
-          const b = nodes[j];
-          if (dist2(a, b) <= r2) {
-            links.push({ source: a.id, target: b.id });
-            if (++added >= maxLinksPerNode) break;
-          }
+    // connect near neighbors, sparse
+    for (let i = 0; i < nodes.length; i++) {
+      let added = 0;
+      for (let j = i + 1; j < nodes.length; j++) {
+        if (dist2(nodes[i], nodes[j]) <= r2) {
+          links.push({ source: nodes[i].id, target: nodes[j].id });
+          if (++added >= maxLinksPerNode) break;
         }
       }
-
-      // Ensure hemispheres are connected through bridge
-      const left = nodes.filter(n => n.group === "L");
-      const right = nodes.filter(n => n.group === "R");
-      const bridge = nodes.filter(n => n.group === "B");
-
-      for (let k = 0; k < bridge.length; k++) {
-        const b = bridge[k];
-        links.push({ source: b.id, target: left[(k * 7) % left.length].id });
-        links.push({ source: b.id, target: right[(k * 11) % right.length].id });
-      }
-
-      return { nodes, links };
     }
 
-    // --------- Render graph ---------
-    const data = generateBrainGraph();
+    return { nodes, links };
+  }
 
-    const Graph = ForceGraph3D()(document.getElementById("graph"))
-      .graphData(data)
-      // Transparent so the CSS gradient shows through
-      .backgroundColor("rgba(0,0,0,0)")
+  // --------- Render graph (swap this line) ---------
+  // OLD: const data = generateBrainGraph();
+  const data = generateTaiwanGraph({
+    nNodes: 170,
+    linkRadius: 18,
+    maxLinksPerNode: 3,
+    scaleX: 105,
+    scaleY: 150,
+    zDepth: 14
+  });
 
-      // Green nodes
-      .nodeColor(() => getComputedStyle(document.documentElement).getPropertyValue("--node").trim() || "#4ade80")
-      .nodeOpacity(0.95)
+  const Graph = ForceGraph3D()(document.getElementById("graph"))
+    .graphData(data)
+    .backgroundColor("rgba(0,0,0,0)")
+    .nodeColor(() => getComputedStyle(document.documentElement).getPropertyValue("--node").trim() || "#4ade80")
+    .nodeOpacity(0.95)
+    .linkColor(() => getComputedStyle(document.documentElement).getPropertyValue("--link").trim() || "rgba(200,210,220,0.25)")
+    .linkOpacity(1)
+    .linkWidth(1)
+    .cooldownTime(4000)
+    .d3VelocityDecay(0.35);
 
-      // Light gray links
-      .linkColor(() => getComputedStyle(document.documentElement).getPropertyValue("--link").trim() || "rgba(200,210,220,0.25)")
-      .linkOpacity(1)
-      .linkWidth(1)
+  // Camera: closer, centered for the silhouette
+  Graph.cameraPosition({ x: 0, y: 0, z: 260 }, { x: 0, y: 0, z: 0 });
 
-      .cooldownTime(6500)
-      .d3VelocityDecay(0.3);
+  Graph.onNodeClick(node => {
+    const dist = 120;
+    const ratio = 1 + dist / Math.hypot(node.x, node.y, node.z);
+    Graph.cameraPosition(
+      { x: node.x * ratio, y: node.y * ratio, z: node.z * ratio },
+      node,
+      800
+    );
+  });
 
-    // Starting camera
-    Graph.cameraPosition({ x: 0, y: 40, z: 240 }, { x: 0, y: 0, z: 0 });
-
-    // Click node to focus
-    Graph.onNodeClick(node => {
-      const dist = 120;
-      const ratio = 1 + dist / Math.hypot(node.x, node.y, node.z);
-      Graph.cameraPosition(
-        { x: node.x * ratio, y: node.y * ratio, z: node.z * ratio },
-        node,
-        800
-      );
-    });
-
-    // Keep canvas sized correctly
-    window.addEventListener("resize", () => {
-      Graph.width(window.innerWidth);
-      Graph.height(window.innerHeight);
-    });
-  </script>
+  window.addEventListener("resize", () => {
+    Graph.width(window.innerWidth);
+    Graph.height(window.innerHeight);
+  });
+</script>
 </body>
 </html>
