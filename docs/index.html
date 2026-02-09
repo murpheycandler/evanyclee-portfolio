@@ -103,7 +103,6 @@
   </div>
 
   <script>
-    <script>
   // ---------- helpers ----------
   function randBetween(a, b) { return a + Math.random() * (b - a); }
 
@@ -121,9 +120,7 @@
     return inside;
   }
 
-  // A simple Taiwan-ish outline (normalized coordinates).
-  // This is an approximation for a stylized silhouette (not cartographic-accurate).
-  // Feel free to tweak points to taste.
+  // Stylized Taiwan-ish outline (normalized)
   const TAIWAN_OUTLINE = [
     [ 0.10,  1.00],
     [ 0.22,  0.95],
@@ -169,8 +166,6 @@
 
   function sampleInTaiwan(poly, scaleX, scaleY, zDepth) {
     const { minX, maxX, minY, maxY } = boundsOf(poly);
-
-    // rejection sample in bounding box
     while (true) {
       const x = randBetween(minX, maxX);
       const y = randBetween(minY, maxY);
@@ -184,14 +179,13 @@
     }
   }
 
-  // ---------- Taiwan-shaped graph generator ----------
   function generateTaiwanGraph({
-    nNodes = 180,         // fewer/more dots
-    linkRadius = 16,      // how close dots must be to connect
-    maxLinksPerNode = 3,  // cap lines per node
-    scaleX = 110,         // overall size (width)
-    scaleY = 140,         // overall size (height)
-    zDepth = 14           // thickness for 3D feel
+    nNodes = 170,
+    linkRadius = 18,
+    maxLinksPerNode = 3,
+    scaleX = 105,
+    scaleY = 150,
+    zDepth = 14
   } = {}) {
     const nodes = [];
     const links = [];
@@ -207,7 +201,6 @@
       return dx*dx + dy*dy + dz*dz;
     }
 
-    // connect near neighbors, sparse
     for (let i = 0; i < nodes.length; i++) {
       let added = 0;
       for (let j = i + 1; j < nodes.length; j++) {
@@ -217,37 +210,28 @@
         }
       }
     }
-
     return { nodes, links };
   }
 
-  // --------- Render graph (swap this line) ---------
-  // OLD: const data = generateBrainGraph();
-  const data = generateTaiwanGraph({
-    nNodes: 170,
-    linkRadius: 18,
-    maxLinksPerNode: 3,
-    scaleX: 105,
-    scaleY: 150,
-    zDepth: 14
-  });
+  const data = generateTaiwanGraph();
 
   const Graph = ForceGraph3D()(document.getElementById("graph"))
     .graphData(data)
     .backgroundColor("rgba(0,0,0,0)")
     .nodeColor(() => getComputedStyle(document.documentElement).getPropertyValue("--node").trim() || "#4ade80")
     .nodeOpacity(0.95)
+    .nodeRelSize(3)  // <-- makes nodes easier to see
     .linkColor(() => getComputedStyle(document.documentElement).getPropertyValue("--link").trim() || "rgba(200,210,220,0.25)")
     .linkOpacity(1)
     .linkWidth(1)
-    .cooldownTime(4000)
+    .cooldownTime(3500)
     .d3VelocityDecay(0.35);
 
-  // Camera: closer, centered for the silhouette
-  Graph.cameraPosition({ x: 0, y: 0, z: 260 }, { x: 0, y: 0, z: 0 });
+  // Camera: a bit closer so it fills your screen
+  Graph.cameraPosition({ x: 0, y: 0, z: 220 }, { x: 0, y: 0, z: 0 });
 
   Graph.onNodeClick(node => {
-    const dist = 120;
+    const dist = 110;
     const ratio = 1 + dist / Math.hypot(node.x, node.y, node.z);
     Graph.cameraPosition(
       { x: node.x * ratio, y: node.y * ratio, z: node.z * ratio },
@@ -260,6 +244,6 @@
     Graph.width(window.innerWidth);
     Graph.height(window.innerHeight);
   });
-</script>
+</script>  
 </body>
 </html>
