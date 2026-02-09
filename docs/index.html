@@ -1,150 +1,234 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Evan Lee's Website</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Name</title>
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      margin: 40px auto;
-      max-width: 800px;
-      padding: 0 20px;
-      background-color: #fafafa;
-      color: #222;
+    :root{
+      --bg1:#0b1328;           /* galactic blue */
+      --bg2:#060914;           /* near-black blue */
+      --text:#9aa3b2;          /* grey text */
+      --node:#4ade80;          /* soft neon green */
+      --link:rgba(200,210,220,0.25); /* light gray lines */
     }
 
-    header, footer {
-      text-align: center;
-      margin-bottom: 30px;
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: radial-gradient(circle at top, var(--bg1), var(--bg2));
+      color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
     }
 
-    nav a {
-      margin: 0 10px;
+    #graph { width: 100vw; height: 100vh; }
+
+    /* Minimal top-left header */
+    .header {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 10;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 12px 14px;
+      border-radius: 12px;
+      backdrop-filter: blur(6px);
+      max-width: min(520px, calc(100vw - 36px));
+    }
+
+    .name {
+      margin: 0 0 6px;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      color: #c7cfdd;
+    }
+
+    .bio {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .links a {
+      color: #c7cfdd;
       text-decoration: none;
-      color: #0066cc;
+      margin-right: 10px;
+      font-size: 14px;
+      white-space: nowrap;
+      opacity: 0.9;
     }
+    .links a:hover { text-decoration: underline; text-underline-offset: 3px; opacity: 1; }
 
-    nav a:hover {
-      text-decoration: underline;
-    }
-
-    .profile-photo {
-        width: 150px;
-        height: 150px;
-        object-fit: cover;
-        object-position: center 15%;
-        border-radius: 50%;
-        display: block;
-        margin: 0 auto 15px auto;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        }  
-
-
-    section {
-      margin-bottom: 40px;
-    }
-
-    h1, h2 {
-      color: #333;
-    }
-
-    ul {
-      margin-left: 20px;
-    }
-
-    li {
-      margin-bottom: 8px;
-    }
-
-    a {
-      color: #0073e6;
-    }
-
-    a:hover {
-      text-decoration: underline;
+    /* Bottom-left mouse hint */
+    .hint {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      z-index: 10;
+      font-size: 13px;
+      color: var(--text);
+      background: rgba(0,0,0,0.28);
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 10px 12px;
+      border-radius: 12px;
+      backdrop-filter: blur(6px);
     }
   </style>
+
+  <!-- Interactive 3D brain graph (Three.js bundled). -->
+  <script src="https://unpkg.com/3d-force-graph@1"></script>
 </head>
+
 <body>
-  <header>
-    <img src="images/ProfessionalPortrait.PNG?v=1" alt="Photo of Evan Lee" class="profile-photo" />
-    <h1>Evan Lee</h1>
-  </header>
+  <div id="graph"></div>
 
-  <main>
-    <section>
-      <h2>Welcome to My Website!</h2>
-      <p>
-              My name is Evan Lee, and I’m a Taiwanese-American senior at The Lovett School in Atlanta. I'm also a rising freshman at Brown University, intending to double-concentrate 
-              in Philosophy and Applied Mathematics-Economics. 
-              On this rudimentary website, I share some of my interests and independent/collaborative works.
-      </p>
-      <p> 
-              Growing up, I was curious about the more technical and progressive aspects of the world and the subjects taught at school. Naturally, the core ideas of mathematics and technology appealed to me. But my interests in STEM have since shifted towards a broader curiosity toward learning about the world around us, and how we come to know what we know.
-      </p>
-      <p>
-            That took me to ethics, and my interdisciplinary curiosity for the intersection between philosophy and math was explored through a semester-long independent study. Heavily influenced by Dr. Agustín Rayo’s “Paradox and Infinity” from MIT’s OpenCourseWare, I continue to interrogate the world around us and test understanding’s limits. But perhaps most importantly, I’ve come to realize the importance of placing unwavering faith in mankind.
-      </p>
-      <p>
-            Anyway, the abovesaid is just my academic story. I'll be more than happy to hear about yours!
-      </p>
-      <p>
-            The biggest project I am working on is editing an already-filmed documentary called 8 to 88: Formosan Fortune, 
-            which emphasizes the Taiwanese identity and economy as an attempt to reframe geopolitical discussions surrounding the island. 
-            It should be completed by 2026, and will hopfully be licensed through <a href="https://taiwanplus.com" target="_blank">TaiwanPlus</a>, a DPP-funded news outlet—but of course, nothing is final until it’s final.
-      </p>
-      <p>
-            Research-wise, I am currently writing two papers: the first discusses the implications of Taiwan's shrinking population, and the second is an accessibility critique of cancel culture in the debate space.
-      </p>
-      <p>
-            My email is <strong>evanyclee1 [at] gmail [dot] com</strong>.  
-      </p>
+  <div class="header">
+    <p class="name">Your Name</p>
+    <p class="bio">I build things around X, Y, Z. Currently exploring A → B → C.</p>
+    <div class="links">
+      <a href="mailto:you@example.com">Email</a>
+      <a href="https://github.com/yourhandle" rel="noreferrer">GitHub</a>
+      <a href="https://www.linkedin.com/in/yourhandle" rel="noreferrer">LinkedIn</a>
+      <a href="https://twitter.com/yourhandle" rel="noreferrer">Twitter</a>
+    </div>
+  </div>
 
-      <h3>Publications</h3>
-      <ul>
-        <li><a href="https://globaltaiwan.org/wp-content/uploads/2025/03/GTB-10.5-PDF.pdf" target="_blank">Innovative Strategies for Taiwan’s Defense: Learning from the Underdogs</a> (with Aaron Wang). <em>Global Taiwan Institute Vol. 10, Issue 5</em>. March 2025.</li>
-        <li><a href="https://abtaiwan.org/2025/10/20/the-bifurcation-of-the-sino-american-identity/" target="_blank">The Bifurcation of the Sino-American Identity</a>. <em>The ABTaiwan Project</em>. October 20, 2025.</li>
-        <li><a href="https://abtaiwan.org/2025/05/27/the-atayal-tribe-chinquan-hsinchu/" target="_blank">The Atayal Tribe: Chinquan, Hsinchu—A Reflection</a>. <em>The ABTaiwan Project</em>. May 27, 2025.</li>
-        <li><a href="https://abtaiwan.org/2024/08/12/taiwans-olympics-recap/" target="_blank">Taiwan’s Olympics Recap!</a> (with Aaron Wang and Aarav Mahendru) <em>The ABTaiwan Project</em>. August 12, 2024.</li>
-        <li><a href="https://abtaiwan.org/2024/07/02/a-brief-history-of-the-relationship-of-taiwan-with-the-us/" target="_blank">A Brief History of the Relationship of Taiwan with the U.S.</a> (with Aaron Wang and Aarav Mahendru). <em>The ABTaiwan Project</em>. July 2, 2024.</li>
-        <li><a href="https://abtaiwan.org/2024/04/23/taiwans-journey-to-nationhood/" target="_blank">Taiwan’s Journey to Nationhood</a>. <em>The ABTaiwan Project</em>. April 23, 2024.</li>
-      </ul>
+  <div class="hint">
+    Drag = rotate • Scroll = zoom • Right-drag = pan • Click node = focus
+  </div>
 
-      <h3>Literature Reviews</h3>
-      <ul>
-        <li><a href="https://drive.google.com/file/d/1AACkUsF76dm0X961NT30AJfnSczjpvSt/view" target="_blank">Belt and Road Initiative</a>. Summer 2025.</li>
-        <li><a href="https://drive.google.com/file/d/1wZBN_zm3KbN4QNx73gIg1ZLhzlS6-WrI/view" target="_blank">Geocriminality</a>. Summer 2025.</li>
-        <li>Illicit Supply Chains. Summer 2025. <em>//Email to view—some evidence is NDA-protected.</em></li>
-      </ul>
+  <script>
+    // --------- Utilities: gaussian sampling ---------
+    function randn() {
+      // Box–Muller transform
+      let u = 0, v = 0;
+      while (u === 0) u = Math.random();
+      while (v === 0) v = Math.random();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
 
-      <h3>Independent Research</h3>
-      <ul>
-        <li><a href="https://drive.google.com/file/d/1AfkQGvSJUdSzsQ3hcMrZKLiaNq5HwCbn/view" target="_blank">The Ethics of Death: Naïve Universalism and the Moral Logic of Salvation</a>. May 1, 2025.</li>
-        <li><a href="https://drive.google.com/file/d/1D606lkl-NvPTd_oaVlem4jd-58hIsH2G/view" target="_blank">Constructivism and Math</a>. December 11, 2024.</li>
-      </ul>
+    function sampleEllipsoid(cx, cy, cz, rx, ry, rz, tightness = 1.2) {
+      // Sample inside unit sphere w/ mild center bias, then scale to ellipsoid
+      let x, y, z;
+      while (true) {
+        x = randn() / tightness;
+        y = randn() / tightness;
+        z = randn() / tightness;
+        if (x * x + y * y + z * z <= 1.0) break;
+      }
+      return { x: cx + x * rx, y: cy + y * ry, z: cz + z * rz };
+    }
 
-      <h3>Three Quotes I Live By:</h3>
-      <ul>
-        <li>"Expect the best, prepare for the worst." - Zig Ziglar</li>
-        <li>"Don't waste your time chasing butterflies. Mend your garden, and the butterflies will come." - Bill Xu</li>
-        <li>"Cogito ergo sum." - Descartes</li>
-      </ul>
+    // --------- Brain-ish graph generator ---------
+    function generateBrainGraph({
+      nLeft = 240,
+      nRight = 240,
+      nBridge = 40,
+      linkRadius = 38,
+      maxLinksPerNode = 4
+    } = {}) {
+      const nodes = [];
+      const links = [];
 
-      <h3>Top 3 Philosophers's Philosophies</h3>
-      <ul>
-        <li>Jacques Derrida - Deconstruction</li>
-        <li>Martin Heidegger - Phenomenonlogy</li>
-        <li>Siddhartha Gautama (The Teacher/Enlightened One/Buddha) - Buddhism (I am not Buddhist)</li>
-      </ul>
-          
-    </section>
-  </main>
+      // Shape controls (tweak to taste)
+      const rx = 85, ry = 60, rz = 70; // hemisphere radii
+      const sep = 55;                  // hemisphere separation on X
 
-  <footer>
-    <p>&copy; 2025 Evan Lee</p>
-  </footer>
+      // Left hemisphere
+      for (let i = 0; i < nLeft; i++) {
+        const p = sampleEllipsoid(-sep, 0, 0, rx, ry, rz, 1.2);
+        nodes.push({ id: `L${i}`, group: "L", ...p });
+      }
+
+      // Right hemisphere
+      for (let i = 0; i < nRight; i++) {
+        const p = sampleEllipsoid(sep, 0, 0, rx, ry, rz, 1.2);
+        nodes.push({ id: `R${i}`, group: "R", ...p });
+      }
+
+      // Bridge (corpus-callosum-ish)
+      for (let i = 0; i < nBridge; i++) {
+        const p = sampleEllipsoid(0, -6, 0, 38, 18, 22, 1.4);
+        nodes.push({ id: `B${i}`, group: "B", ...p });
+      }
+
+      const r2 = linkRadius * linkRadius;
+
+      function dist2(a, b) {
+        const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
+        return dx * dx + dy * dy + dz * dz;
+      }
+
+      // Connect to nearby neighbors (kept sparse for readability)
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
+        let added = 0;
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j];
+          if (dist2(a, b) <= r2) {
+            links.push({ source: a.id, target: b.id });
+            if (++added >= maxLinksPerNode) break;
+          }
+        }
+      }
+
+      // Ensure hemispheres are connected through bridge
+      const left = nodes.filter(n => n.group === "L");
+      const right = nodes.filter(n => n.group === "R");
+      const bridge = nodes.filter(n => n.group === "B");
+
+      for (let k = 0; k < bridge.length; k++) {
+        const b = bridge[k];
+        links.push({ source: b.id, target: left[(k * 7) % left.length].id });
+        links.push({ source: b.id, target: right[(k * 11) % right.length].id });
+      }
+
+      return { nodes, links };
+    }
+
+    // --------- Render graph ---------
+    const data = generateBrainGraph();
+
+    const Graph = ForceGraph3D()(document.getElementById("graph"))
+      .graphData(data)
+      // Transparent so the CSS gradient shows through
+      .backgroundColor("rgba(0,0,0,0)")
+
+      // Green nodes
+      .nodeColor(() => getComputedStyle(document.documentElement).getPropertyValue("--node").trim() || "#4ade80")
+      .nodeOpacity(0.95)
+
+      // Light gray links
+      .linkColor(() => getComputedStyle(document.documentElement).getPropertyValue("--link").trim() || "rgba(200,210,220,0.25)")
+      .linkOpacity(1)
+      .linkWidth(1)
+
+      .cooldownTime(6500)
+      .d3VelocityDecay(0.3);
+
+    // Starting camera
+    Graph.cameraPosition({ x: 0, y: 40, z: 240 }, { x: 0, y: 0, z: 0 });
+
+    // Click node to focus
+    Graph.onNodeClick(node => {
+      const dist = 120;
+      const ratio = 1 + dist / Math.hypot(node.x, node.y, node.z);
+      Graph.cameraPosition(
+        { x: node.x * ratio, y: node.y * ratio, z: node.z * ratio },
+        node,
+        800
+      );
+    });
+
+    // Keep canvas sized correctly
+    window.addEventListener("resize", () => {
+      Graph.width(window.innerWidth);
+      Graph.height(window.innerHeight);
+    });
+  </script>
 </body>
 </html>
