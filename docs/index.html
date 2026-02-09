@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Evan Lee's Website</title>
+  <title>Your Name</title>
 
   <style>
     :root{
-      --bg1:#0b1328;           /* galactic blue */
-      --bg2:#060914;           /* near-black blue */
-      --text:#9aa3b2;          /* grey text */
-      --node:#4ade80;          /* soft neon green */
-      --link:rgba(200,210,220,0.25); /* light gray lines */
+      --bg1:#0b1328;                 /* galactic blue */
+      --bg2:#060914;                 /* near-black blue */
+      --text:#9aa3b2;                /* grey text */
+      --node:#4ade80;                /* green nodes */
+      --link:rgba(200,210,220,0.22); /* light gray lines */
     }
 
     html, body {
@@ -23,148 +23,217 @@
       overflow: hidden;
     }
 
-    #graph { width: 100vw; height: 100vh; }
+    /* Split layout: left content + right 3D */
+    .layout{
+      height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(320px, 38%) 1fr;
+    }
 
-    /* Minimal top-left header */
-    .header {
-      position: fixed;
-      top: 18px;
-      left: 18px;
-      z-index: 10;
-      background: rgba(0,0,0,0.35);
+    .left{
+      padding: 42px 28px;
+      z-index: 2;
+    }
+
+    .card{
+      background: rgba(0,0,0,0.30);
       border: 1px solid rgba(255,255,255,0.08);
-      padding: 12px 14px;
-      border-radius: 12px;
-      backdrop-filter: blur(6px);
-      max-width: min(520px, calc(100vw - 36px));
+      border-radius: 16px;
+      padding: 18px 18px 14px;
+      backdrop-filter: blur(8px);
+      max-width: 560px;
     }
 
-    .name {
-      margin: 0 0 6px;
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: 0.2px;
-      color: #c7cfdd;
-    }
-
-    .bio {
+    h1{
       margin: 0 0 8px;
-      font-size: 14px;
-      color: var(--text);
+      font-size: 22px;
+      font-weight: 650;
+      color: #c7cfdd;
+      letter-spacing: 0.2px;
     }
+    p{ margin: 0 0 10px; font-size: 14px; }
 
-    .links a {
+    .links a{
       color: #c7cfdd;
       text-decoration: none;
-      margin-right: 10px;
+      margin-right: 12px;
       font-size: 14px;
+      opacity: 0.9;
       white-space: nowrap;
+    }
+    .links a:hover{ text-decoration: underline; text-underline-offset: 3px; opacity: 1; }
+
+    .hint{
+      margin-top: 10px;
+      font-size: 12.5px;
       opacity: 0.9;
     }
-    .links a:hover { text-decoration: underline; text-underline-offset: 3px; opacity: 1; }
 
-    /* Bottom-left mouse hint */
-    .hint {
-      position: fixed;
-      left: 18px;
-      bottom: 18px;
-      z-index: 10;
-      font-size: 13px;
-      color: var(--text);
-      background: rgba(0,0,0,0.28);
-      border: 1px solid rgba(255,255,255,0.07);
-      padding: 10px 12px;
-      border-radius: 12px;
-      backdrop-filter: blur(6px);
+    .right{
+      position: relative;
+      height: 100%;
+      min-width: 0;
+    }
+
+    /* Graph fills right side */
+    #graph{
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Mobile: stack with graph below */
+    @media (max-width: 860px){
+      .layout{ grid-template-columns: 1fr; grid-template-rows: auto 55vh; }
+      .left{ padding: 18px 16px 10px; }
+      .right{ height: 55vh; }
+      body{ overflow: auto; }
     }
   </style>
 
-  <!-- Interactive 3D brain graph (Three.js bundled). -->
   <script src="https://unpkg.com/3d-force-graph@1"></script>
 </head>
 
 <body>
-  <div id="graph"></div>
+  <div class="layout">
+    <section class="left">
+      <div class="card">
+        <h1>Evan Lee</h1>
+        <p>I like asking questions. I'm interested in the future, normativity, and infinity. I like nodes.</p>
+        <div class="links">
+           <a href="mailto:evanyclee1@gmail.com">Email</a>
+      <a href="https://substack.com/@evanyclee?" rel="noreferrer">Substack</a>
+      <a href="https://www.linkedin.com/in/evan-l-15b0072a2/" rel="noreferrer">LinkedIn</a>
+      <a href="https://www.instagram.com/itpfoodreview/" rel="noreferrer">Eats</a>
+        </div>
+        <div class="hint">Drag = rotate • Scroll = zoom • Right-drag = pan • Click node = focus</div>
+      </div>
 
-  <div class="header">
+      <div class="header">
     <p class="name">Evan (Yao-Chen) Lee</p>
     <p class="bio">I like asking questions. Currently a rising Freshman at Brown for CS and Philosophy. I'm interested in the future, normativity, and infinity. I like nodes.
     </p>
     <div class="links">
-      <a href="mailto:evanyclee1@gmail.com">Email</a>
-      <a href="https://substack.com/@evanyclee?" rel="noreferrer">Substack</a>
-      <a href="https://www.linkedin.com/in/evan-l-15b0072a2/" rel="noreferrer">LinkedIn</a>
-      <a href="https://www.instagram.com/itpfoodreview/" rel="noreferrer">Eats</a>
     </div>
   </div>
+    </section>
 
-  <div class="hint">
-    Drag = rotate • Scroll = zoom • Right-drag = pan • Click node = focus
+    <section class="right">
+      <div id="graph"></div>
+    </section>
   </div>
 
   <script>
-    // --------- Utilities: gaussian sampling ---------
+    // -------------------- TUNABLE SETTINGS --------------------
+    const SETTINGS = {
+      // Fewer nodes (was ~520). Try 140–260 total.
+      nLeft: 90,
+      nRight: 90,
+      nBridge: 18,
+      nCerebellum: 26,
+
+      // Smaller brain footprint
+      hemiRx: 46,
+      hemiRy: 34,
+      hemiRz: 38,
+      hemiSep: 30,
+
+      // Links
+      linkRadius: 22,
+      maxLinksPerNode: 3,
+
+      // Visuals
+      nodeSize: 2.2,   // relative size in 3d-force-graph
+      linkWidth: 1
+    };
+
+    // -------------------- RANDOM HELPERS --------------------
     function randn() {
-      // Box–Muller transform
       let u = 0, v = 0;
       while (u === 0) u = Math.random();
       while (v === 0) v = Math.random();
       return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
     }
 
-    function sampleEllipsoid(cx, cy, cz, rx, ry, rz, tightness = 1.2) {
-      // Sample inside unit sphere w/ mild center bias, then scale to ellipsoid
+    // sample inside ellipsoid with mild center bias
+    function sampleEllipsoid(cx, cy, cz, rx, ry, rz, tightness = 1.25) {
       let x, y, z;
       while (true) {
         x = randn() / tightness;
         y = randn() / tightness;
         z = randn() / tightness;
-        if (x * x + y * y + z * z <= 1.0) break;
+        if (x*x + y*y + z*z <= 1.0) break;
       }
       return { x: cx + x * rx, y: cy + y * ry, z: cz + z * rz };
     }
 
-    // --------- Brain-ish graph generator ---------
-    function generateBrainGraph({
-      nLeft = 240,
-      nRight = 240,
-      nBridge = 40,
-      linkRadius = 38,
-      maxLinksPerNode = 4
-    } = {}) {
+    // Add “gyrus-like” bumps so it feels less like a smooth blob.
+    function gyrusWarp(p, strength = 2.2) {
+      const k1 = 0.14, k2 = 0.18, k3 = 0.16;
+      const bump =
+        Math.sin(p.y * k1) * Math.cos(p.z * k2) +
+        Math.sin(p.z * k3) * Math.cos(p.x * k1);
+
+      return {
+        x: p.x + bump * strength * 0.35,
+        y: p.y + bump * strength * 0.25,
+        z: p.z + bump * strength * 0.45
+      };
+    }
+
+    // Carve a “midline notch” (gap between hemispheres) so it reads as a brain.
+    function passesMidlineNotch(p) {
+      // Remove points that are too close to center line (x≈0), mostly toward the top (y>0)
+      const closeToMid = Math.abs(p.x) < 5;
+      const upper = p.y > -6;
+      return !(closeToMid && upper);
+    }
+
+    function generateBrainGraph() {
       const nodes = [];
       const links = [];
 
-      // Shape controls (tweak to taste)
-      const rx = 85, ry = 60, rz = 70; // hemisphere radii
-      const sep = 55;                  // hemisphere separation on X
+      const {
+        nLeft, nRight, nBridge, nCerebellum,
+        hemiRx, hemiRy, hemiRz, hemiSep,
+        linkRadius, maxLinksPerNode
+      } = SETTINGS;
 
-      // Left hemisphere
+      // Hemispheres
       for (let i = 0; i < nLeft; i++) {
-        const p = sampleEllipsoid(-sep, 0, 0, rx, ry, rz, 1.2);
-        nodes.push({ id: `L${i}`, group: "L", ...p });
+        let p = sampleEllipsoid(-hemiSep, 0, 0, hemiRx, hemiRy, hemiRz, 1.22);
+        p = gyrusWarp(p, 2.2);
+        if (!passesMidlineNotch(p)) { i--; continue; }
+        nodes.push({ id: `L${i}`, group: "brain", ...p });
       }
 
-      // Right hemisphere
       for (let i = 0; i < nRight; i++) {
-        const p = sampleEllipsoid(sep, 0, 0, rx, ry, rz, 1.2);
-        nodes.push({ id: `R${i}`, group: "R", ...p });
+        let p = sampleEllipsoid(hemiSep, 0, 0, hemiRx, hemiRy, hemiRz, 1.22);
+        p = gyrusWarp(p, 2.2);
+        if (!passesMidlineNotch(p)) { i--; continue; }
+        nodes.push({ id: `R${i}`, group: "brain", ...p });
       }
 
-      // Bridge (corpus-callosum-ish)
+      // Bridge / corpus-callosum-ish (smaller cluster)
       for (let i = 0; i < nBridge; i++) {
-        const p = sampleEllipsoid(0, -6, 0, 38, 18, 22, 1.4);
-        nodes.push({ id: `B${i}`, group: "B", ...p });
+        let p = sampleEllipsoid(0, -6, 2, 18, 10, 12, 1.35);
+        p = gyrusWarp(p, 1.6);
+        nodes.push({ id: `B${i}`, group: "brain", ...p });
       }
 
-      const r2 = linkRadius * linkRadius;
+      // Cerebellum-ish (small lobe at back/bottom)
+      for (let i = 0; i < nCerebellum; i++) {
+        let p = sampleEllipsoid(0, -22, -26, 20, 12, 14, 1.35);
+        p = gyrusWarp(p, 1.4);
+        nodes.push({ id: `C${i}`, group: "brain", ...p });
+      }
 
+      // Link nearby nodes (sparse)
+      const r2 = linkRadius * linkRadius;
       function dist2(a, b) {
         const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
-        return dx * dx + dy * dy + dz * dz;
+        return dx*dx + dy*dy + dz*dz;
       }
 
-      // Connect to nearby neighbors (kept sparse for readability)
       for (let i = 0; i < nodes.length; i++) {
         const a = nodes[i];
         let added = 0;
@@ -177,58 +246,54 @@
         }
       }
 
-      // Ensure hemispheres are connected through bridge
-      const left = nodes.filter(n => n.group === "L");
-      const right = nodes.filter(n => n.group === "R");
-      const bridge = nodes.filter(n => n.group === "B");
+      // Ensure cross-hemisphere connectivity through bridge
+      const left = nodes.filter(n => n.id[0] === "L");
+      const right = nodes.filter(n => n.id[0] === "R");
+      const bridge = nodes.filter(n => n.id[0] === "B");
 
       for (let k = 0; k < bridge.length; k++) {
-        const b = bridge[k];
-        links.push({ source: b.id, target: left[(k * 7) % left.length].id });
-        links.push({ source: b.id, target: right[(k * 11) % right.length].id });
+        links.push({ source: bridge[k].id, target: left[(k * 5) % left.length].id });
+        links.push({ source: bridge[k].id, target: right[(k * 7) % right.length].id });
       }
 
       return { nodes, links };
     }
 
-    // --------- Render graph ---------
-    const data = generateBrainGraph();
+    // -------------------- RENDER --------------------
+    const nodeColor = getComputedStyle(document.documentElement).getPropertyValue("--node").trim() || "#4ade80";
+    const linkColor = getComputedStyle(document.documentElement).getPropertyValue("--link").trim() || "rgba(200,210,220,0.22)";
 
     const Graph = ForceGraph3D()(document.getElementById("graph"))
-      .graphData(data)
-      // Transparent so the CSS gradient shows through
+      .graphData(generateBrainGraph())
       .backgroundColor("rgba(0,0,0,0)")
 
-      // Green nodes
-      .nodeColor(() => getComputedStyle(document.documentElement).getPropertyValue("--node").trim() || "#4ade80")
+      .nodeColor(() => nodeColor)
       .nodeOpacity(0.95)
+      .nodeRelSize(SETTINGS.nodeSize)
 
-      // Light gray links
-      .linkColor(() => getComputedStyle(document.documentElement).getPropertyValue("--link").trim() || "rgba(200,210,220,0.25)")
+      .linkColor(() => linkColor)
       .linkOpacity(1)
-      .linkWidth(1)
+      .linkWidth(SETTINGS.linkWidth)
 
-      .cooldownTime(6500)
-      .d3VelocityDecay(0.3);
+      .cooldownTime(5500)
+      .d3VelocityDecay(0.32);
 
-    // Starting camera
-    Graph.cameraPosition({ x: 0, y: 40, z: 240 }, { x: 0, y: 0, z: 0 });
+    // Fit nicely in the right panel: closer camera + center
+    Graph.cameraPosition({ x: 0, y: 18, z: 140 }, { x: 0, y: -4, z: -2 });
 
-    // Click node to focus
     Graph.onNodeClick(node => {
-      const dist = 120;
+      const dist = 70; // closer because smaller scene
       const ratio = 1 + dist / Math.hypot(node.x, node.y, node.z);
       Graph.cameraPosition(
         { x: node.x * ratio, y: node.y * ratio, z: node.z * ratio },
         node,
-        800
+        700
       );
     });
 
-    // Keep canvas sized correctly
     window.addEventListener("resize", () => {
-      Graph.width(window.innerWidth);
-      Graph.height(window.innerHeight);
+      Graph.width(document.getElementById("graph").clientWidth);
+      Graph.height(document.getElementById("graph").clientHeight);
     });
   </script>
 </body>
