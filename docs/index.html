@@ -4,91 +4,122 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Evan Lee's Website</title>
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg1:#0b1328;           /* galactic blue */
-      --bg2:#060914;           /* near-black blue */
-      --text:#9aa3b2;          /* grey text */
-      --node:#4ade80;          /* soft neon green */
-      --link:rgba(200,210,220,0.25); /* light gray lines */
+      --bg1:#132c22;           /* deep pine, radial center */
+      --bg2:#0b1f16;           /* near-black green */
+      --text:#c9c2b6;          /* muted ivory-grey body text */
+      --heading:#f2efe9;       /* ivory */
+      --accent:#d4af7a;        /* champagne gold */
+      --rare:#b36b54;          /* muted rust, used sparingly */
+      --card-border:rgba(212,175,122,0.18);
     }
-
     html, body {
       margin: 0;
-      height: 100%;
+      min-height: 100%;
       background: radial-gradient(circle at top, var(--bg1), var(--bg2));
       color: var(--text);
-      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      overflow: hidden;
+      font: 18px/1.65 'EB Garamond', Georgia, 'Times New Roman', serif;
     }
-
-    /* Minimal top-left header */
-    .header {
-      position: fixed;
-      top: 18px;
-      left: 18px;
-      z-index: 10;
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.08);
-      padding: 12px 14px;
-      border-radius: 12px;
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--card-border);
+      padding: 36px 40px;
+      border-radius: 14px;
       backdrop-filter: blur(6px);
-      max-width: min(520px, calc(100vw - 36px));
+      max-width: 620px;
     }
-
-    .name {
-      margin: 0 0 6px;
-      font-size: 16px;
-      font-weight: 600;
+    .eyebrow {
+      margin: 0 0 22px;
+      font-size: 15px;
       letter-spacing: 0.2px;
-      color: #c7cfdd;
+      color: var(--accent);
+      font-style: italic;
+      font-weight: 500;
     }
-
-    .bio {
-      margin: 0 0 8px;
+    .email {
+      margin: 0 0 28px;
       font-size: 14px;
       color: var(--text);
+      letter-spacing: 0.2px;
     }
-
+    p.bio {
+      margin: 0 0 18px;
+      font-size: 15px;
+      color: var(--text);
+    }
+    p.bio:last-of-type { margin-bottom: 28px; }
+    .photo {
+      margin: 0 0 22px;
+    }
+    .photo img {
+      display: block;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+    }
+    .photo figcaption {
+      margin-top: 8px;
+      font-size: 14px;
+      font-style: italic;
+      color: var(--accent);
+      text-align: center;
+    }
+    .name {
+      margin: 0 0 14px;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      color: var(--heading);
+    }
     .links a {
-      color: #c7cfdd;
+      color: var(--accent);
       text-decoration: none;
-      margin-right: 10px;
+      margin-right: 16px;
       font-size: 14px;
       white-space: nowrap;
       opacity: 0.9;
     }
     .links a:hover { text-decoration: underline; text-underline-offset: 3px; opacity: 1; }
-
-    /* Bottom-left mouse hint */
-    .hint {
-      position: fixed;
-      left: 18px;
-      bottom: 18px;
-      z-index: 10;
-      font-size: 13px;
-      color: var(--text);
-      background: rgba(0,0,0,0.28);
-      border: 1px solid rgba(255,255,255,0.07);
-      padding: 10px 12px;
-      border-radius: 12px;
-      backdrop-filter: blur(6px);
-    }
+    .links a:last-child { margin-right: 0; }
   </style>
 </head>
-
 <body>
-  <div class="header">
-    <p class="name">Evan (Yao-Chen) Lee</p>
-    <p class="bio">hey! i'm evan, and i like to learn. i'm currently interested in ethics, culture, and ml. you can find some of my writing at the substack hyperlink!
-    </p>
+  <div class="card">
+    <p class="eyebrow">welcome to my corner of the internet</p>
+    <p class="email">evanyclee1 [at] gmail [dot] com</p>
+
+    <p class="bio">hey! im evan, and i like to learn. most broadly, im interested in ethics, culture, and machine learning. because of lincoln-douglas debate, ive thought deeply about hegel's dialectics; because of my taiwanese heritage, ive mulled over what it means to be 'taiwanese'; because i care about making the world a better place, im pursuing a career in safety research. i find nodes very fascinating to think about as well.</p>
+
+    <p class="bio">i enjoy bouldering, urban exploring, and watching beautiful sunsets.</p>
+
+    <figure class="photo">
+      <img src="goat-selfie.jpeg" alt="Evan next to a shaggy, curly-haired goat with a similar expression" />
+      <figcaption>i like animals as well</figcaption>
+    </figure>
+
+    <p class="bio">my work experience spans anything but what im actually passionate in. that's unfortunately a result of my fear of being rejected from a job in the alignment field. ive done some research in international policy and philosophy; ive worked a c-level position at an a16z speedrun company where i ended up automating my job, whilst still getting burnt out. anyway!</p>
+
+    <p class="bio">i want to learn more about your worldview!</p>
+
+    <p class="name">evanyclee</p>
     <div class="links">
-      <a href="mailto:evanyclee1@gmail.com">Email</a>
-      <a href="https://substack.com/@evanyclee?" rel="noreferrer">Substack</a>
-      <a href="https://www.linkedin.com/in/evan-l-15b0072a2/" rel="noreferrer">LinkedIn</a>
+      <a href="mailto:evanyclee1@gmail.com">email</a>
+      <a href="https://substack.com/@evanyclee" rel="noreferrer">substack</a>
+      <a href="resume.pdf" rel="noreferrer">resumé</a>
+      <a href="https://www.linkedin.com/in/evan-l-15b0072a2/" rel="noreferrer">linkedin</a>
+      <a href="https://github.com/evanyclee" rel="noreferrer">github</a>
     </div>
   </div>
-</script>  
 </body>
 </html>
